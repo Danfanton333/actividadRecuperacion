@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Obtener el token JWT del localStorage
+    const token = localStorage.getItem('token');
+
+    // Verificar si el token existe
+    if (!token) {
+        alert('No has iniciado sesión. Serás redirigido al formulario de inicio de sesión.');
+        window.location.href = '/views/login/login.html'; // Redirigir al login si no hay token
+        return;
+    }
+
     const studentsTableBody = document.querySelector("#studentsTable tbody");
     const studentModal = document.getElementById("studentModal");
     const studentForm = document.getElementById("studentForm");
@@ -9,7 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cargar estudiantes
     async function loadStudents() {
         try {
-            const response = await fetch("http://localhost:3000/api_v1/student");
+            const response = await fetch("http://localhost:3000/api_v1/student", {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al obtener estudiantes");
             const students = await response.json();
             studentsTableBody.innerHTML = "";
@@ -57,7 +71,10 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
                 body: JSON.stringify({ studentDegree, personFk })
             });
             if (!response.ok) throw new Error("Error al guardar el estudiante");
@@ -72,7 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleShowStudent(e) {
         const studentId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/student/${studentId}`);
+            const response = await fetch(`http://localhost:3000/api_v1/student/${studentId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al obtener el estudiante");
             const student = await response.json();
             alert(`Detalles del estudiante:\nID: ${student.Student_id}\nGrado: ${student.Student_degree}\nPersona FK: ${student.Person_fk}`);
@@ -85,7 +106,11 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleEditStudent(e) {
         const studentId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/student/${studentId}`);
+            const response = await fetch(`http://localhost:3000/api_v1/student/${studentId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al obtener el estudiante");
             const student = await response.json();
             document.getElementById("studentModalLabel").textContent = "Editar Estudiante";
@@ -103,7 +128,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirm("¿Estás seguro de eliminar este estudiante?")) return;
 
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/student/${studentId}`, { method: "DELETE" });
+            const response = await fetch(`http://localhost:3000/api_v1/student/${studentId}`, { 
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al eliminar el estudiante");
             loadStudents();
         } catch (error) {

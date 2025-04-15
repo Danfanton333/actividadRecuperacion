@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Obtener el token JWT del localStorage
+    const token = localStorage.getItem('token');
+
+    // Verificar si el token existe
+    if (!token) {
+        alert('No has iniciado sesión. Serás redirigido al formulario de inicio de sesión.');
+        window.location.href = '/views/login/login.html'; // Redirigir al login si no hay token
+        return;
+    }
+
     const teacherStudentTableBody = document.querySelector("#teacherStudentTable tbody");
     const teacherStudentModal = document.getElementById("teacherStudentModal");
     const teacherStudentForm = document.getElementById("teacherStudentForm");
@@ -10,7 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cargar asignaciones de profesor-estudiante
     async function loadTeacherStudents() {
         try {
-            const response = await axios.get("http://localhost:3000/api_v1/teacherStudentClasses");
+            const response = await axios.get("http://localhost:3000/api_v1/teacherStudentClasses", {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             teacherStudentTableBody.innerHTML = "";
             response.data.forEach(ts => {
                 const row = `
@@ -59,7 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
             : "http://localhost:3000/api_v1/teacherStudentClasses";
 
         try {
-            await axios[method](url, { teacherFk, studentFk, classes });
+            await axios[method](url, { teacherFk, studentFk, classes }, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             bootstrap.Modal.getInstance(teacherStudentModal).hide();
             loadTeacherStudents();
         } catch (error) {
@@ -71,7 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleShowTeacherStudent(e) {
         const teacherStudentId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await axios.get(`http://localhost:3000/api_v1/teacherStudentClasses/${teacherStudentId}`);
+            const response = await axios.get(`http://localhost:3000/api_v1/teacherStudentClasses/${teacherStudentId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             const ts = response.data;
             alert(`Detalles de la asignación:\nID: ${ts.Teacher_student_classes_id}\nProfesor ID: ${ts.Teacher_fk}\nEstudiante ID: ${ts.Student_fk}\nClases: ${ts.Classes}`);
         } catch (error) {
@@ -83,7 +105,11 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleEditTeacherStudent(e) {
         const teacherStudentId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await axios.get(`http://localhost:3000/api_v1/teacherStudentClasses/${teacherStudentId}`);
+            const response = await axios.get(`http://localhost:3000/api_v1/teacherStudentClasses/${teacherStudentId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             const ts = response.data;
             document.getElementById("teacherStudentModalLabel").textContent = "Editar Asignación";
             teacherFkInput.value = ts.Teacher_fk;
@@ -101,7 +127,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirm("¿Estás seguro de eliminar esta asignación?")) return;
 
         try {
-            await axios.delete(`http://localhost:3000/api_v1/teacherStudentClasses/${teacherStudentId}`);
+            await axios.delete(`http://localhost:3000/api_v1/teacherStudentClasses/${teacherStudentId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             loadTeacherStudents();
         } catch (error) {
             alert("Error al eliminar la asignación: " + error.message);

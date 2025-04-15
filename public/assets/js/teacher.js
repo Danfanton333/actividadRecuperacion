@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Obtener el token JWT del localStorage
+    const token = localStorage.getItem('token');
+
+    // Verificar si el token existe
+    if (!token) {
+        alert('No has iniciado sesión. Serás redirigido al formulario de inicio de sesión.');
+        window.location.href = '/views/login/login.html'; // Redirigir al login si no hay token
+        return;
+    }
+
     const teachersTableBody = document.querySelector("#teachersTable tbody");
     const teacherModal = document.getElementById("teacherModal");
     const teacherForm = document.getElementById("teacherForm");
@@ -9,7 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cargar profesores
     async function loadTeachers() {
         try {
-            const response = await fetch("http://localhost:3000/api_v1/teacher");
+            const response = await fetch("http://localhost:3000/api_v1/teacher", {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al obtener profesores");
             const teachers = await response.json();
             teachersTableBody.innerHTML = "";
@@ -57,7 +71,10 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
                 body: JSON.stringify({ teacherSpecialty, personFk })
             });
             if (!response.ok) throw new Error("Error al guardar el profesor");
@@ -72,7 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleShowTeacher(e) {
         const teacherId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/teacher/${teacherId}`);
+            const response = await fetch(`http://localhost:3000/api_v1/teacher/${teacherId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al obtener el profesor");
             const teacher = await response.json();
             alert(`Detalles del profesor:\nID: ${teacher.Teacher_id}\nEspecialidad: ${teacher.Teacher_specialty}\nPersona FK: ${teacher.Person_fk}`);
@@ -85,7 +106,11 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleEditTeacher(e) {
         const teacherId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/teacher/${teacherId}`);
+            const response = await fetch(`http://localhost:3000/api_v1/teacher/${teacherId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al obtener el profesor");
             const teacher = await response.json();
             document.getElementById("teacherModalLabel").textContent = "Editar Profesor";
@@ -103,7 +128,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirm("¿Estás seguro de eliminar este profesor?")) return;
 
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/teacher/${teacherId}`, { method: "DELETE" });
+            const response = await fetch(`http://localhost:3000/api_v1/teacher/${teacherId}`, { 
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al eliminar el profesor");
             loadTeachers();
         } catch (error) {
