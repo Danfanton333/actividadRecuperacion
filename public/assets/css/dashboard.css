@@ -1,0 +1,97 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: rgb(252, 252, 255);
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Estilos para el menú lateral */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh; /* Altura total de la pantalla */
+    width: 250px; /* Ancho fijo */
+    background-color: #343a40; /* Color oscuro para el menú */
+    color: white;
+    padding: 20px;
+    overflow-y: auto; /* Barra de desplazamiento si es necesario */
+}
+
+.sidebar h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #fff;
+}
+
+.sidebar ul {
+    list-style-type: none;
+}
+
+.sidebar li {
+    margin-bottom: 10px;
+}
+
+/* Estilos para los botones del menú */
+.menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: #fff;
+    background-color: transparent;
+    border: none;
+    padding: 10px 15px;
+    width: 100%;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+}
+
+.menu-button i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.menu-button:hover {
+    background-color: #5c636a;
+    color: #fff;
+}
+
+/* Contenido principal */
+.content {
+    margin-left: 250px; /* Espacio para el menú lateral */
+    padding: 20px;
+    min-height: 100vh; /* Altura mínima para cubrir toda la pantalla */
+    transition: margin-left 0.3s ease; /* Transición suave al ocultar/mostrar el menú */
+}
+
+.content h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #343a40;
+}
+
+.content p {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+/* Efectos adicionales */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .content {
+        margin-left: 0;
+    }
+}
