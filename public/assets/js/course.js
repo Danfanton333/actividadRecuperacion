@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Obtener el token JWT del localStorage
+    const token = localStorage.getItem('token');
+
+    // Verificar si el token existe
+    if (!token) {
+        alert('No has iniciado sesión. Serás redirigido al formulario de inicio de sesión.');
+        window.location.href = '/views/login/login.html'; // Redirigir al login si no hay token
+        return;
+    }
+
     const coursesTableBody = document.querySelector("#coursesTable tbody");
     const courseModal = document.getElementById("courseModal");
     const courseForm = document.getElementById("courseForm");
@@ -8,7 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cargar cursos
     async function loadCourses() {
         try {
-            const response = await fetch("http://localhost:3000/api_v1/course");
+            const response = await fetch("http://localhost:3000/api_v1/course", {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al obtener cursos");
             const courses = await response.json();
             coursesTableBody.innerHTML = "";
@@ -53,8 +68,11 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ courseName: courseName }) // Asegúrate de usar "courseName"
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+                body: JSON.stringify({ courseName: courseName })
             });
             if (!response.ok) throw new Error("Error al guardar el curso");
             bootstrap.Modal.getInstance(courseModal).hide();
@@ -68,7 +86,12 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleShowCourse(e) {
         const courseId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/course/${courseId}`);
+            const response = await fetch(`http://localhost:3000/api_v1/course/${courseId}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al obtener el curso");
             const course = await response.json();
             alert(`Detalles del curso:\nID: ${course.Course_id}\nNombre: ${course.Course_name}`);
@@ -81,7 +104,12 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleEditCourse(e) {
         const courseId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/course/${courseId}`);
+            const response = await fetch(`http://localhost:3000/api_v1/course/${courseId}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al obtener el curso");
             const course = await response.json();
             document.getElementById("courseModalLabel").textContent = "Editar Curso";
@@ -98,7 +126,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirm("¿Estás seguro de eliminar este curso?")) return;
 
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/course/${courseId}`, { method: "DELETE" });
+            const response = await fetch(`http://localhost:3000/api_v1/course/${courseId}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             if (!response.ok) throw new Error("Error al eliminar el curso");
             loadCourses();
         } catch (error) {

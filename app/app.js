@@ -14,7 +14,7 @@ const app = express();
 app.use(cors({
     origin: "*",  // Puedes cambiar "*" por "http://localhost:5501" si solo permites tu frontend
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type"]
+    allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 
@@ -31,7 +31,7 @@ app.use('/api_v1', teacherStudentClassesRoutes);
 
 
 
-app.use((rep, res, nex) => {
+app.use((rep, res, next) => {
     res.status(404).json({
         message: 'Endpoint losses'
     });

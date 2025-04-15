@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Obtener el token JWT del localStorage
+    const token = localStorage.getItem('token');
+
+    // Verificar si el token existe
+    if (!token) {
+        alert('No has iniciado sesión. Serás redirigido al formulario de inicio de sesión.');
+        window.location.href = '/views/login/login.html'; // Redirigir al login si no hay token
+        return;
+    }
+
     const courseTeacherTableBody = document.querySelector("#courseTeacherTable tbody");
     const courseTeacherModal = document.getElementById("courseTeacherModal");
     const courseTeacherForm = document.getElementById("courseTeacherForm");
@@ -10,7 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cargar asignaciones de curso-profesor
     async function loadCourseTeachers() {
         try {
-            const response = await axios.get("http://localhost:3000/api_v1/courseTeacherHours");
+            const response = await axios.get("http://localhost:3000/api_v1/courseTeacherHours", {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             courseTeacherTableBody.innerHTML = "";
             response.data.forEach(ct => {
                 const row = `
@@ -59,7 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
             : "http://localhost:3000/api_v1/courseTeacherHours";
 
         try {
-            await axios[method](url, { courseFk, teacherFk, hours });
+            await axios[method](url, { courseFk, teacherFk, hours }, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             bootstrap.Modal.getInstance(courseTeacherModal).hide();
             loadCourseTeachers();
         } catch (error) {
@@ -71,7 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleShowCourseTeacher(e) {
         const courseTeacherId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await axios.get(`http://localhost:3000/api_v1/courseTeacherHours/${courseTeacherId}`);
+            const response = await axios.get(`http://localhost:3000/api_v1/courseTeacherHours/${courseTeacherId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             const ct = response.data;
             alert(`Detalles de la asignación:\nID: ${ct.Course_teacher_hours_id}\nCurso ID: ${ct.Course_fk}\nProfesor ID: ${ct.Teacher_fk}\nHoras: ${ct.Hours}`);
         } catch (error) {
@@ -83,7 +105,11 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleEditCourseTeacher(e) {
         const courseTeacherId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await axios.get(`http://localhost:3000/api_v1/courseTeacherHours/${courseTeacherId}`);
+            const response = await axios.get(`http://localhost:3000/api_v1/courseTeacherHours/${courseTeacherId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             const ct = response.data;
             document.getElementById("courseTeacherModalLabel").textContent = "Editar Asignación";
             courseFkInput.value = ct.Course_fk;
@@ -101,7 +127,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirm("¿Estás seguro de eliminar esta asignación?")) return;
 
         try {
-            await axios.delete(`http://localhost:3000/api_v1/courseTeacherHours/${courseTeacherId}`);
+            await axios.delete(`http://localhost:3000/api_v1/courseTeacherHours/${courseTeacherId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
             loadCourseTeachers();
         } catch (error) {
             alert("Error al eliminar la asignación: " + error.message);

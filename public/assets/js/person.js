@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Obtener el token JWT del localStorage
+    const token = localStorage.getItem('token');
+
+    // Verificar si el token existe
+    if (!token) {
+        alert('No has iniciado sesión. Serás redirigido al formulario de inicio de sesión.');
+        window.location.href = '/views/login/login.html'; // Redirigir al login si no hay token
+        return;
+    }
+
     const personTableBody = document.querySelector("#personTable tbody");
     const personModal = document.getElementById("personModal");
     const personForm = document.getElementById("personForm");
@@ -9,8 +19,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadPersons() {
         try {
-            const response = await fetch("http://localhost:3000/api_v1/person");
-            if (!response.ok) throw new Error("Error al obtener personas");
+            const response = await fetch("http://localhost:3000/api_v1/person", {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al obtener personas');
+            }
+
             const persons = await response.json();
             personTableBody.innerHTML = "";
             persons.forEach(person => {
@@ -70,10 +89,17 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ personName, personDocument, personAge })
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+                body: JSON.stringify({ personName, personDocument, personAge }),
             });
-            if (!response.ok) throw new Error("Error al guardar la persona");
+
+            if (!response.ok) {
+                throw new Error('Error al guardar la persona');
+            }
+
             bootstrap.Modal.getInstance(personModal).hide();
             loadPersons(); // Recargar la tabla después de guardar
         } catch (error) {
@@ -84,8 +110,17 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleShowPerson(e) {
         const personId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/person/${personId}`);
-            if (!response.ok) throw new Error("Error al obtener la persona");
+            const response = await fetch(`http://localhost:3000/api_v1/person/${personId}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al obtener la persona');
+            }
+
             const person = await response.json();
             alert(`Detalles de la persona:\nID: ${person.Person_id}\nNombre: ${person.Person_name}\nDocumento: ${person.Person_document}\nEdad: ${person.Person_age}`);
         } catch (error) {
@@ -96,8 +131,17 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleEditPerson(e) {
         const personId = e.target.closest("button").getAttribute("data-id");
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/person/${personId}`);
-            if (!response.ok) throw new Error("Error al obtener la persona");
+            const response = await fetch(`http://localhost:3000/api_v1/person/${personId}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al obtener la persona');
+            }
+
             const person = await response.json();
             document.getElementById("personModalLabel").textContent = "Editar Persona";
             personNameInput.value = person.Person_name;
@@ -114,8 +158,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirm("¿Estás seguro de eliminar esta persona?")) return;
 
         try {
-            const response = await fetch(`http://localhost:3000/api_v1/person/${personId}`, { method: "DELETE" });
-            if (!response.ok) throw new Error("Error al eliminar la persona");
+            const response = await fetch(`http://localhost:3000/api_v1/person/${personId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`, // Incluir el token en el encabezado
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al eliminar la persona');
+            }
+
             loadPersons(); // Recargar la tabla después de eliminar
         } catch (error) {
             alert("Error al eliminar la persona: " + error.message);
